@@ -1,0 +1,846 @@
+{
+  "title": "MafiaMP Lua API Reference",
+  "version": "1.0.0",
+  "categories": [
+    {
+      "id": "event",
+      "name": "Event",
+      "description": "Event management system for listening to game and custom events",
+      "type": "namespace",
+      "functions": [
+        {
+          "name": "Event.on",
+          "syntax": "Event.on(eventName, callback)",
+          "description": "Registers a callback for an event",
+          "parameters": [
+            {"name": "eventName", "type": "string", "description": "Name of the event to listen to"},
+            {"name": "callback", "type": "function", "description": "Function to execute when event fires"}
+          ],
+          "returns": {"type": "void"},
+          "example": "Event.on('onPlayerConnected', function(player)\n  Chat.sendToAll(player.name .. ' joined the server!')\nend)"
+        },
+        {
+          "name": "Event.emit",
+          "syntax": "Event.emit(eventName, ...)",
+          "description": "Triggers a custom event",
+          "parameters": [
+            {"name": "eventName", "type": "string", "description": "Name of the custom event"},
+            {"name": "...", "type": "any", "description": "Arguments to pass to event listeners"}
+          ],
+          "returns": {"type": "void"},
+          "example": "Event.emit('myCustomEvent', 'Hello', 123)\n\nEvent.on('myCustomEvent', function(msg, num)\n  Console.log(msg, num)\nend)"
+        }
+      ],
+      "events": [
+        {"name": "onGamemodeLoaded", "params": [], "description": "Called when gamemode is loaded"},
+        {"name": "onGamemodeUnloading", "params": [], "description": "Called before gamemode unloads"},
+        {"name": "onGamemodeUpdated", "params": [], "description": "Called every frame (use with caution)"},
+        {"name": "onPlayerConnected", "params": [{"name": "player", "type": "Player"}], "description": "Player connects to server"},
+        {"name": "onPlayerDisconnected", "params": [{"name": "player", "type": "Player"}], "description": "Player disconnects from server"},
+        {"name": "onPlayerDied", "params": [{"name": "player", "type": "Player"}], "description": "Player dies"},
+        {"name": "onChatMessage", "params": [{"name": "player", "type": "Player"}, {"name": "message", "type": "string"}], "description": "Player sends chat message"},
+        {"name": "onChatCommand", "params": [{"name": "player", "type": "Player"}, {"name": "message", "type": "string"}, {"name": "command", "type": "string"}, {"name": "args", "type": "string[]"}], "description": "Player sends command"},
+        {"name": "onVehiclePlayerEnter", "params": [{"name": "vehicle", "type": "Vehicle"}, {"name": "player", "type": "Player"}, {"name": "seatIndex", "type": "integer"}], "description": "Player enters vehicle"},
+        {"name": "onVehiclePlayerLeave", "params": [{"name": "vehicle", "type": "Vehicle"}, {"name": "player", "type": "Player"}], "description": "Player leaves vehicle"}
+      ]
+    },
+    {
+      "id": "world",
+      "name": "World",
+      "description": "World management - time, weather, entity creation",
+      "type": "namespace",
+      "functions": [
+        {
+          "name": "World.createVehicle",
+          "syntax": "World.createVehicle(modelName)",
+          "description": "Creates a new vehicle in the world",
+          "parameters": [
+            {"name": "modelName", "type": "string", "description": "Model name of the vehicle (e.g. 'shubert_six')"}
+          ],
+          "returns": {"type": "Vehicle", "description": "The created vehicle object"},
+          "example": "local car = World.createVehicle('shubert_six')\ncar:setPosition(Vector3.new(0, 0, 0))\ncar:setColorPrimary(RGB.new(255, 0, 0))"
+        },
+        {
+          "name": "World.getDayTimeHours",
+          "syntax": "World.getDayTimeHours()",
+          "description": "Gets current time of day",
+          "parameters": [],
+          "returns": {"type": "number", "description": "Time in hours (0.0 - 24.0)"},
+          "example": "local currentTime = World.getDayTimeHours()\nConsole.log('Current time: ' .. currentTime)"
+        },
+        {
+          "name": "World.setDayTimeHours",
+          "syntax": "World.setDayTimeHours(hours)",
+          "description": "Sets the time of day",
+          "parameters": [
+            {"name": "hours", "type": "number", "description": "Time in hours (0.0 - 24.0)"}
+          ],
+          "returns": {"type": "void"},
+          "example": "World.setDayTimeHours(12.0) -- Set to noon"
+        },
+        {
+          "name": "World.getWeatherSet",
+          "syntax": "World.getWeatherSet()",
+          "description": "Gets current weather set name",
+          "parameters": [],
+          "returns": {"type": "string", "description": "Weather set name"},
+          "example": "local weather = World.getWeatherSet()\nConsole.log('Weather: ' .. weather)"
+        },
+        {
+          "name": "World.setWeatherSet",
+          "syntax": "World.setWeatherSet(weatherSetName)",
+          "description": "Sets the weather",
+          "parameters": [
+            {"name": "weatherSetName", "type": "string", "description": "Name of weather set"}
+          ],
+          "returns": {"type": "void"},
+          "example": "World.setWeatherSet('DT_FreeRide_Day')"
+        }
+      ]
+    },
+    {
+      "id": "chat",
+      "name": "Chat",
+      "description": "Server chat management",
+      "type": "namespace",
+      "functions": [
+        {
+          "name": "Chat.sendToAll",
+          "syntax": "Chat.sendToAll(message)",
+          "description": "Sends a message to all players",
+          "parameters": [
+            {"name": "message", "type": "string", "description": "Message to send"}
+          ],
+          "returns": {"type": "void"},
+          "example": "Chat.sendToAll('Server restarting in 5 minutes!')"
+        },
+        {
+          "name": "Chat.sendToPlayer",
+          "syntax": "Chat.sendToPlayer(player, message)",
+          "description": "Sends a private message to a player",
+          "parameters": [
+            {"name": "player", "type": "Player", "description": "Target player"},
+            {"name": "message", "type": "string", "description": "Message to send"}
+          ],
+          "returns": {"type": "void"},
+          "example": "Event.on('onPlayerConnected', function(player)\n  Chat.sendToPlayer(player, 'Welcome to the server!')\nend)"
+        }
+      ]
+    },
+    {
+      "id": "console",
+      "name": "Console",
+      "description": "Server console logging",
+      "type": "namespace",
+      "functions": [
+        {
+          "name": "Console.log",
+          "syntax": "Console.log(...)",
+          "description": "Logs messages to the server console",
+          "parameters": [
+            {"name": "...", "type": "any", "description": "Values to log (converted to strings)"}
+          ],
+          "returns": {"type": "string"},
+          "example": "Console.log('Server started')\nConsole.log('Players online:', 5, 'Max:', 32)"
+        }
+      ]
+    },
+    {
+      "id": "entity",
+      "name": "Entity",
+      "description": "Base class for all game entities (Player, Vehicle inherit from this)",
+      "type": "class",
+      "properties": [
+        {"name": "id", "type": "number", "readonly": true, "description": "Entity's unique ID"},
+        {"name": "name", "type": "string", "readonly": true, "description": "Entity's name"},
+        {"name": "nickname", "type": "string", "readonly": true, "description": "Entity's nickname"}
+      ],
+      "functions": [
+        {
+          "name": "entity:destroy",
+          "syntax": "entity:destroy()",
+          "description": "Destroys the entity",
+          "parameters": [],
+          "returns": {"type": "void"},
+          "example": "local veh = World.createVehicle('shubert_six')\nveh:destroy()"
+        },
+        {
+          "name": "entity:getPosition",
+          "syntax": "entity:getPosition()",
+          "description": "Gets entity position",
+          "parameters": [],
+          "returns": {"type": "Vector3"},
+          "example": "local pos = player:getPosition()\nConsole.log(pos.x, pos.y, pos.z)"
+        },
+        {
+          "name": "entity:setPosition",
+          "syntax": "entity:setPosition(position)",
+          "description": "Sets entity position",
+          "parameters": [
+            {"name": "position", "type": "Vector3", "description": "New position"}
+          ],
+          "returns": {"type": "void"},
+          "example": "player:setPosition(Vector3.new(100, 50, 200))"
+        },
+        {
+          "name": "entity:getRotation",
+          "syntax": "entity:getRotation()",
+          "description": "Gets entity rotation",
+          "parameters": [],
+          "returns": {"type": "Quaternion"},
+          "example": "local rot = vehicle:getRotation()"
+        },
+        {
+          "name": "entity:setRotation",
+          "syntax": "entity:setRotation(rotation)",
+          "description": "Sets entity rotation",
+          "parameters": [
+            {"name": "rotation", "type": "Quaternion", "description": "New rotation"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setRotation(Quaternion.new(1, 0, 0, 0))"
+        },
+        {
+          "name": "entity:getVelocity",
+          "syntax": "entity:getVelocity()",
+          "description": "Gets entity velocity",
+          "parameters": [],
+          "returns": {"type": "Vector3"},
+          "example": "local vel = vehicle:getVelocity()\nConsole.log('Speed:', vel.length)"
+        },
+        {
+          "name": "entity:setVelocity",
+          "syntax": "entity:setVelocity(velocity)",
+          "description": "Sets entity velocity",
+          "parameters": [
+            {"name": "velocity", "type": "Vector3", "description": "New velocity"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setVelocity(Vector3.new(0, 10, 0))"
+        },
+        {
+          "name": "entity:getModelName",
+          "syntax": "entity:getModelName()",
+          "description": "Gets model name",
+          "parameters": [],
+          "returns": {"type": "string"},
+          "example": "local model = vehicle:getModelName()"
+        },
+        {
+          "name": "entity:setModelName",
+          "syntax": "entity:setModelName(name)",
+          "description": "Sets model name",
+          "parameters": [
+            {"name": "name", "type": "string", "description": "Model name"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setModelName('shubert_armored')"
+        },
+        {
+          "name": "entity:getVisible",
+          "syntax": "entity:getVisible()",
+          "description": "Checks if entity is visible",
+          "parameters": [],
+          "returns": {"type": "boolean"},
+          "example": "if vehicle:getVisible() then\n  Console.log('Visible')\nend"
+        },
+        {
+          "name": "entity:setVisible",
+          "syntax": "entity:setVisible(visible)",
+          "description": "Sets entity visibility",
+          "parameters": [
+            {"name": "visible", "type": "boolean", "description": "Visibility state"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setVisible(false) -- Hide vehicle"
+        },
+        {
+          "name": "entity:getVirtualWorld",
+          "syntax": "entity:getVirtualWorld()",
+          "description": "Gets virtual world ID",
+          "parameters": [],
+          "returns": {"type": "number"},
+          "example": "local world = player:getVirtualWorld()"
+        },
+        {
+          "name": "entity:setVirtualWorld",
+          "syntax": "entity:setVirtualWorld(worldId)",
+          "description": "Sets virtual world ID",
+          "parameters": [
+            {"name": "worldId", "type": "number", "description": "Virtual world ID"}
+          ],
+          "returns": {"type": "void"},
+          "example": "player:setVirtualWorld(1) -- Separate dimension"
+        }
+      ]
+    },
+    {
+      "id": "player",
+      "name": "Player",
+      "description": "Represents a connected player (inherits from Human and Entity)",
+      "type": "class",
+      "inherits": ["Human", "Entity"],
+      "functions": [
+        {
+          "name": "player:sendChat",
+          "syntax": "player:sendChat(message)",
+          "description": "Sends a private message to the player",
+          "parameters": [
+            {"name": "message", "type": "string", "description": "Message to send"}
+          ],
+          "returns": {"type": "void"},
+          "example": "player:sendChat('You have been healed!')"
+        },
+        {
+          "name": "player:sendChatToAll",
+          "syntax": "player:sendChatToAll(message)",
+          "description": "Sends a message from this player to all players",
+          "parameters": [
+            {"name": "message", "type": "string", "description": "Message to send"}
+          ],
+          "returns": {"type": "void"},
+          "example": "player:sendChatToAll('Hello everyone!')"
+        },
+        {
+          "name": "player:getHealth",
+          "syntax": "player:getHealth()",
+          "description": "Gets player health",
+          "parameters": [],
+          "returns": {"type": "number", "description": "Health (0-100)"},
+          "example": "local hp = player:getHealth()\nif hp < 50 then\n  player:setHealth(100)\nend"
+        },
+        {
+          "name": "player:setHealth",
+          "syntax": "player:setHealth(health)",
+          "description": "Sets player health",
+          "parameters": [
+            {"name": "health", "type": "number", "description": "Health value (0-100)"}
+          ],
+          "returns": {"type": "void"},
+          "example": "player:setHealth(100) -- Full health"
+        },
+        {
+          "name": "player:addWeapon",
+          "syntax": "player:addWeapon(weaponId, ammo)",
+          "description": "Gives a weapon to the player",
+          "parameters": [
+            {"name": "weaponId", "type": "integer", "description": "Weapon ID"},
+            {"name": "ammo", "type": "integer", "description": "Amount of ammo"}
+          ],
+          "returns": {"type": "void"},
+          "example": "player:addWeapon(10, 50) -- Give weapon 10 with 50 ammo"
+        },
+        {
+          "name": "player:getVehicle",
+          "syntax": "player:getVehicle()",
+          "description": "Gets the vehicle the player is in",
+          "parameters": [],
+          "returns": {"type": "Vehicle", "description": "Vehicle or nil"},
+          "example": "local veh = player:getVehicle()\nif veh then\n  veh:setEngineOn(true)\nend"
+        },
+        {
+          "name": "player:getVehicleSeatIndex",
+          "syntax": "player:getVehicleSeatIndex()",
+          "description": "Gets player's seat index in vehicle",
+          "parameters": [],
+          "returns": {"type": "integer", "description": "Seat index or -1 if not in vehicle"},
+          "example": "local seat = player:getVehicleSeatIndex()\nif seat == 0 then\n  Console.log('Driver')\nend"
+        },
+        {
+          "name": "player:isAiming",
+          "syntax": "player:isAiming()",
+          "description": "Checks if player is aiming",
+          "parameters": [],
+          "returns": {"type": "boolean"},
+          "example": "if player:isAiming() then\n  Console.log('Aiming!')\nend"
+        },
+        {
+          "name": "player:isFiring",
+          "syntax": "player:isFiring()",
+          "description": "Checks if player is firing",
+          "parameters": [],
+          "returns": {"type": "boolean"},
+          "example": "if player:isFiring() then\n  Console.log('Shooting!')\nend"
+        },
+        {
+          "name": "player:getAimPos",
+          "syntax": "player:getAimPos()",
+          "description": "Gets aim hit position",
+          "parameters": [],
+          "returns": {"type": "Vector3"},
+          "example": "local aimPos = player:getAimPos()"
+        },
+        {
+          "name": "player:getAimDir",
+          "syntax": "player:getAimDir()",
+          "description": "Gets aim direction",
+          "parameters": [],
+          "returns": {"type": "Vector3"},
+          "example": "local aimDir = player:getAimDir()"
+        }
+      ]
+    },
+    {
+      "id": "vehicle",
+      "name": "Vehicle",
+      "description": "Represents a vehicle in the game (inherits from Entity)",
+      "type": "class",
+      "inherits": ["Entity"],
+      "functions": [
+        {
+          "name": "vehicle:getEngineOn",
+          "syntax": "vehicle:getEngineOn()",
+          "description": "Checks if engine is on",
+          "parameters": [],
+          "returns": {"type": "boolean"},
+          "example": "if vehicle:getEngineOn() then\n  Console.log('Engine running')\nend"
+        },
+        {
+          "name": "vehicle:setEngineOn",
+          "syntax": "vehicle:setEngineOn(on)",
+          "description": "Sets engine state",
+          "parameters": [
+            {"name": "on", "type": "boolean", "description": "Engine state"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setEngineOn(true) -- Start engine"
+        },
+        {
+          "name": "vehicle:getFuel",
+          "syntax": "vehicle:getFuel()",
+          "description": "Gets fuel level",
+          "parameters": [],
+          "returns": {"type": "number"},
+          "example": "local fuel = vehicle:getFuel()"
+        },
+        {
+          "name": "vehicle:setFuel",
+          "syntax": "vehicle:setFuel(fuel)",
+          "description": "Sets fuel level",
+          "parameters": [
+            {"name": "fuel", "type": "number", "description": "Fuel amount"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setFuel(100) -- Full tank"
+        },
+        {
+          "name": "vehicle:getLicensePlate",
+          "syntax": "vehicle:getLicensePlate()",
+          "description": "Gets license plate text",
+          "parameters": [],
+          "returns": {"type": "string"},
+          "example": "local plate = vehicle:getLicensePlate()"
+        },
+        {
+          "name": "vehicle:setLicensePlate",
+          "syntax": "vehicle:setLicensePlate(plate)",
+          "description": "Sets license plate text",
+          "parameters": [
+            {"name": "plate", "type": "string", "description": "License plate text"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setLicensePlate('MAFIA')"
+        },
+        {
+          "name": "vehicle:getColorPrimary",
+          "syntax": "vehicle:getColorPrimary()",
+          "description": "Gets primary color",
+          "parameters": [],
+          "returns": {"type": "RGB"},
+          "example": "local color = vehicle:getColorPrimary()"
+        },
+        {
+          "name": "vehicle:setColorPrimary",
+          "syntax": "vehicle:setColorPrimary(color)",
+          "description": "Sets primary color",
+          "parameters": [
+            {"name": "color", "type": "RGB", "description": "RGB color"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setColorPrimary(RGB.new(255, 0, 0)) -- Red"
+        },
+        {
+          "name": "vehicle:getColorSecondary",
+          "syntax": "vehicle:getColorSecondary()",
+          "description": "Gets secondary color",
+          "parameters": [],
+          "returns": {"type": "RGB"},
+          "example": "local color = vehicle:getColorSecondary()"
+        },
+        {
+          "name": "vehicle:setColorSecondary",
+          "syntax": "vehicle:setColorSecondary(color)",
+          "description": "Sets secondary color",
+          "parameters": [
+            {"name": "color", "type": "RGB", "description": "RGB color"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setColorSecondary(RGB.new(0, 0, 255)) -- Blue"
+        },
+        {
+          "name": "vehicle:getSirenOn",
+          "syntax": "vehicle:getSirenOn()",
+          "description": "Checks if siren is on",
+          "parameters": [],
+          "returns": {"type": "boolean"},
+          "example": "if vehicle:getSirenOn() then\n  Console.log('Siren active')\nend"
+        },
+        {
+          "name": "vehicle:setSirenOn",
+          "syntax": "vehicle:setSirenOn(on)",
+          "description": "Sets siren state",
+          "parameters": [
+            {"name": "on", "type": "boolean", "description": "Siren state"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setSirenOn(true)"
+        },
+        {
+          "name": "vehicle:getLockState",
+          "syntax": "vehicle:getLockState()",
+          "description": "Gets lock state",
+          "parameters": [],
+          "returns": {"type": "integer"},
+          "example": "local locked = vehicle:getLockState()"
+        },
+        {
+          "name": "vehicle:setLockState",
+          "syntax": "vehicle:setLockState(state)",
+          "description": "Sets lock state",
+          "parameters": [
+            {"name": "state", "type": "integer", "description": "Lock state"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setLockState(1) -- Lock vehicle"
+        },
+        {
+          "name": "vehicle:getDirt",
+          "syntax": "vehicle:getDirt()",
+          "description": "Gets dirt level",
+          "parameters": [],
+          "returns": {"type": "number"},
+          "example": "local dirt = vehicle:getDirt()"
+        },
+        {
+          "name": "vehicle:setDirt",
+          "syntax": "vehicle:setDirt(dirt)",
+          "description": "Sets dirt level",
+          "parameters": [
+            {"name": "dirt", "type": "number", "description": "Dirt amount"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vehicle:setDirt(0) -- Clean vehicle"
+        }
+      ]
+    },
+    {
+      "id": "view",
+      "name": "View",
+      "description": "Web view system for creating browser-based UI interfaces. Uses Ultralight rendering engine.",
+      "type": "class",
+      "functions": [
+        {
+          "name": "View.create",
+          "syntax": "View.create(url, width, height, x, y)",
+          "description": "Creates a new web view window",
+          "parameters": [
+            {"name": "url", "type": "string", "description": "URL to load (http://, https://, or file://)"},
+            {"name": "width", "type": "number", "description": "View width in pixels (optional, default: 0 = fullscreen)"},
+            {"name": "height", "type": "number", "description": "View height in pixels (optional, default: 0 = fullscreen)"},
+            {"name": "x", "type": "number", "description": "X position (optional, default: 0)"},
+            {"name": "y", "type": "number", "description": "Y position (optional, default: 0)"}
+          ],
+          "returns": {"type": "View", "description": "Created view object"},
+          "example": "-- Create a fullscreen view\nlocal myView = View.create('https://example.com')\n\n-- Create a positioned window\nlocal hud = View.create('file:///ui/hud.html', 800, 600, 100, 100)"
+        },
+        {
+          "name": "view:getId",
+          "syntax": "view:getId()",
+          "description": "Gets the view's unique ID",
+          "parameters": [],
+          "returns": {"type": "number"},
+          "example": "local id = myView:getId()\nConsole.log('View ID:', id)"
+        },
+        {
+          "name": "view:setPosition",
+          "syntax": "view:setPosition(x, y)",
+          "description": "Sets view position on screen",
+          "parameters": [
+            {"name": "x", "type": "number", "description": "X coordinate"},
+            {"name": "y", "type": "number", "description": "Y coordinate"}
+          ],
+          "returns": {"type": "void"},
+          "example": "myView:setPosition(100, 50)"
+        },
+        {
+          "name": "view:getZIndex",
+          "syntax": "view:getZIndex()",
+          "description": "Gets view z-index (layer order)",
+          "parameters": [],
+          "returns": {"type": "number"},
+          "example": "local z = myView:getZIndex()"
+        },
+        {
+          "name": "view:setZIndex",
+          "syntax": "view:setZIndex(zIndex)",
+          "description": "Sets view z-index (higher = on top)",
+          "parameters": [
+            {"name": "zIndex", "type": "number", "description": "Z-index value"}
+          ],
+          "returns": {"type": "void"},
+          "example": "myView:setZIndex(100) -- Bring to front"
+        },
+        {
+          "name": "view:setFocus",
+          "syntax": "view:setFocus(focused)",
+          "description": "Sets view focus state",
+          "parameters": [
+            {"name": "focused", "type": "boolean", "description": "Focus state"}
+          ],
+          "returns": {"type": "void"},
+          "example": "myView:setFocus(true) -- Give focus"
+        },
+        {
+          "name": "view:getFocus",
+          "syntax": "view:getFocus()",
+          "description": "Checks if view has focus",
+          "parameters": [],
+          "returns": {"type": "boolean"},
+          "example": "if myView:getFocus() then\n  Console.log('View is focused')\nend"
+        },
+        {
+          "name": "view:setDisplay",
+          "syntax": "view:setDisplay(visible)",
+          "description": "Sets view visibility",
+          "parameters": [
+            {"name": "visible", "type": "boolean", "description": "Visibility state"}
+          ],
+          "returns": {"type": "void"},
+          "example": "myView:setDisplay(true) -- Show view"
+        },
+        {
+          "name": "view:getDisplay",
+          "syntax": "view:getDisplay()",
+          "description": "Checks if view is visible",
+          "parameters": [],
+          "returns": {"type": "boolean"},
+          "example": "if myView:getDisplay() then\n  Console.log('View is visible')\nend"
+        },
+        {
+          "name": "view:on",
+          "syntax": "view:on(eventName, callback)",
+          "description": "Listens to events emitted from JavaScript (use emit() in JS)",
+          "parameters": [
+            {"name": "eventName", "type": "string", "description": "Event name"},
+            {"name": "callback", "type": "function", "description": "Callback function receiving event data"}
+          ],
+          "returns": {"type": "void"},
+          "example": "-- Lua side\nmyView:on('buttonClicked', function(data)\n  Console.log('Received from JS:', data.buttonId)\nend)\n\n-- JavaScript side (in the HTML)\n// emit('buttonClicked', {buttonId: 5})"
+        },
+        {
+          "name": "view:emit",
+          "syntax": "view:emit(eventName, data)",
+          "description": "Sends event to JavaScript (use window.on() in JS to listen)",
+          "parameters": [
+            {"name": "eventName", "type": "string", "description": "Event name"},
+            {"name": "data", "type": "table|string", "description": "Data to send (will be JSON encoded)"}
+          ],
+          "returns": {"type": "void"},
+          "example": "-- Lua side\nmyView:emit('updateScore', {score = 100, player = 'John'})\n\n-- JavaScript side (in the HTML)\n// window.on('updateScore', function(data) {\n//   console.log(data.score, data.player);\n// });"
+        },
+        {
+          "name": "view:onViewInit",
+          "syntax": "view:onViewInit(callback)",
+          "description": "Sets callback for when view is initialized",
+          "parameters": [
+            {"name": "callback", "type": "function", "description": "Init callback"}
+          ],
+          "returns": {"type": "void"},
+          "example": "myView:onViewInit(function()\n  Console.log('View ready!')\n  myView:emit('init', {})\nend)"
+        },
+        {
+          "name": "view:destroy",
+          "syntax": "view:destroy()",
+          "description": "Destroys the view",
+          "parameters": [],
+          "returns": {"type": "void"},
+          "example": "myView:destroy()"
+        }
+      ]
+    },
+    {
+      "id": "vector3",
+      "name": "Vector3",
+      "description": "3D vector for positions and directions",
+      "type": "class",
+      "properties": [
+        {"name": "x", "type": "number", "readonly": true, "description": "X component"},
+        {"name": "y", "type": "number", "readonly": true, "description": "Y component"},
+        {"name": "z", "type": "number", "readonly": true, "description": "Z component"},
+        {"name": "length", "type": "number", "readonly": true, "description": "Vector magnitude"}
+      ],
+      "functions": [
+        {
+          "name": "Vector3.new",
+          "syntax": "Vector3.new(x, y, z)",
+          "description": "Creates a new Vector3",
+          "parameters": [
+            {"name": "x", "type": "number", "description": "X value"},
+            {"name": "y", "type": "number", "description": "Y value"},
+            {"name": "z", "type": "number", "description": "Z value"}
+          ],
+          "returns": {"type": "Vector3"},
+          "example": "local pos = Vector3.new(100, 50, 200)"
+        },
+        {
+          "name": "vec:add",
+          "syntax": "vec:add(x, y, z)",
+          "description": "Adds to the vector",
+          "parameters": [
+            {"name": "x", "type": "number"},
+            {"name": "y", "type": "number"},
+            {"name": "z", "type": "number"}
+          ],
+          "returns": {"type": "void"},
+          "example": "local vec = Vector3.new(1, 2, 3)\nvec:add(10, 20, 30)"
+        },
+        {
+          "name": "vec:sub",
+          "syntax": "vec:sub(x, y, z)",
+          "description": "Subtracts from the vector",
+          "parameters": [
+            {"name": "x", "type": "number"},
+            {"name": "y", "type": "number"},
+            {"name": "z", "type": "number"}
+          ],
+          "returns": {"type": "void"},
+          "example": "vec:sub(5, 5, 5)"
+        }
+      ]
+    },
+    {
+      "id": "rgb",
+      "name": "RGB",
+      "description": "RGB color representation",
+      "type": "class",
+      "properties": [
+        {"name": "r", "type": "integer", "readonly": true, "description": "Red (0-255)"},
+        {"name": "g", "type": "integer", "readonly": true, "description": "Green (0-255)"},
+        {"name": "b", "type": "integer", "readonly": true, "description": "Blue (0-255)"}
+      ],
+      "functions": [
+        {
+          "name": "RGB.new",
+          "syntax": "RGB.new(r, g, b)",
+          "description": "Creates a new RGB color",
+          "parameters": [
+            {"name": "r", "type": "integer", "description": "Red (0-255)"},
+            {"name": "g", "type": "integer", "description": "Green (0-255)"},
+            {"name": "b", "type": "integer", "description": "Blue (0-255)"}
+          ],
+          "returns": {"type": "RGB"},
+          "example": "local red = RGB.new(255, 0, 0)\nlocal green = RGB.new(0, 255, 0)"
+        }
+      ]
+    },
+    {
+      "id": "json",
+      "name": "JSON",
+      "description": "JSON encoding/decoding utilities",
+      "type": "namespace",
+      "functions": [
+        {
+          "name": "JSON.stringify",
+          "syntax": "JSON.stringify(table)",
+          "description": "Converts Lua table to JSON string",
+          "parameters": [
+            {"name": "table", "type": "table", "description": "Lua table to convert"}
+          ],
+          "returns": {"type": "string", "description": "JSON string"},
+          "example": "local data = {name = 'Server', players = 10}\nlocal json = JSON.stringify(data)"
+        },
+        {
+          "name": "JSON.parse",
+          "syntax": "JSON.parse(jsonString)",
+          "description": "Parses JSON string to Lua table",
+          "parameters": [
+            {"name": "jsonString", "type": "string", "description": "JSON string"}
+          ],
+          "returns": {"type": "table", "description": "Lua table"},
+          "example": "local str = '{\"name\":\"Test\"}'\nlocal data = JSON.parse(str)\nConsole.log(data.name)"
+        }
+      ]
+    },
+    {
+      "id": "hash",
+      "name": "Hash",
+      "description": "Cryptographic hash functions",
+      "type": "namespace",
+      "functions": [
+        {
+          "name": "Hash.toMD5",
+          "syntax": "Hash.toMD5(input)",
+          "description": "Generates MD5 hash",
+          "parameters": [
+            {"name": "input", "type": "string", "description": "Input string"}
+          ],
+          "returns": {"type": "string", "description": "MD5 hash"},
+          "example": "local hash = Hash.toMD5('password123')"
+        },
+        {
+          "name": "Hash.toSHA256",
+          "syntax": "Hash.toSHA256(input)",
+          "description": "Generates SHA256 hash",
+          "parameters": [
+            {"name": "input", "type": "string", "description": "Input string"}
+          ],
+          "returns": {"type": "string", "description": "SHA256 hash"},
+          "example": "local hash = Hash.toSHA256('mydata')"
+        },
+        {
+          "name": "Hash.toCRC32",
+          "syntax": "Hash.toCRC32(input)",
+          "description": "Generates CRC32 hash",
+          "parameters": [
+            {"name": "input", "type": "string", "description": "Input string"}
+          ],
+          "returns": {"type": "string", "description": "CRC32 hash"},
+          "example": "local hash = Hash.toCRC32('checksum')"
+        }
+      ]
+    },
+    {
+      "id": "environment",
+      "name": "Environment",
+      "description": "Runtime environment information",
+      "type": "namespace",
+      "functions": [
+        {
+          "name": "Environment.platform",
+          "syntax": "Environment.platform()",
+          "description": "Gets current platform",
+          "parameters": [],
+          "returns": {"type": "string", "description": "'Windows', 'Linux', or 'macOS'"},
+          "example": "local os = Environment.platform()\nConsole.log('Running on:', os)"
+        },
+        {
+          "name": "Environment.build",
+          "syntax": "Environment.build()",
+          "description": "Gets build type",
+          "parameters": [],
+          "returns": {"type": "string", "description": "'Debug' or 'Release'"},
+          "example": "if Environment.build() == 'Debug' then\n  Console.log('Debug mode!')\nend"
+        },
+        {
+          "name": "Environment.release",
+          "syntax": "Environment.release()",
+          "description": "Gets release type",
+          "parameters": [],
+          "returns": {"type": "string", "description": "'Production' or 'Development'"},
+          "example": "local rel = Environment.release()"
+        }
+      ]
+    }
+  ]
+}
+

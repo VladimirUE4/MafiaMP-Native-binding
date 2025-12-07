@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MafiaMP Lua API Reference</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-hover: #3a3a3a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent: #4a9eff;
+            --accent-hover: #6bb3ff;
+            --border: #404040;
+            --code-bg: #252525;
+            --success: #4caf50;
+            --warning: #ff9800;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            z-index: 10;
+        }
+
+        .sidebar-header h1 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .category-list {
+            padding: 10px 0;
+        }
+
+        .category-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .category-item.active {
+            background: var(--bg-hover);
+            border-left-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .category-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .category-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .category-count {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        .content-header {
+            margin-bottom: 40px;
+        }
+
+        .content-header h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .content-header .description {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .content-header .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--accent);
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        /* Function Cards */
+        .function-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .function-card:hover {
+            border-color: var(--accent);
+        }
+
+        .function-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .function-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent);
+            font-family: 'Courier New', monospace;
+            margin-bottom: 8px;
+        }
+
+        .function-syntax {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+            background: var(--code-bg);
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .function-body {
+            padding: 20px;
+        }
+
+        .function-description {
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .params-section, .returns-section, .example-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .param-item {
+            background: var(--code-bg);
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .param-name {
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .param-type {
+            color: var(--success);
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .param-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: var(--text-primary);
+        }
+
+        /* Events Section */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .event-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .event-name {
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .event-params {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+            margin-bottom: 8px;
+        }
+
+        .event-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Properties */
+        .properties-section {
+            margin-bottom: 30px;
+        }
+
+        .property-item {
+            background: var(--code-bg);
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .property-readonly {
+            background: var(--warning);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--bg-hover);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-results h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">Loading API Reference...</div>
+    <div id="app" class="container" style="display: none;"></div>
+
+    <script>
+        let apiData = null;
+        let currentCategory = null;
+        let searchQuery = '';
+
+        // Load JSON data
+        fetch('lua_api_data.json')
+            .then(res => res.json())
+            .then(data => {
+                apiData = data;
+                init();
+            })
+            .catch(err => {
+                document.getElementById('loading').textContent = 'Error loading API data: ' + err.message;
+            });
+
+        function init() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            
+            currentCategory = apiData.categories[0].id;
+            render();
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                ${renderSidebar()}
+                ${renderMainContent()}
+            `;
+            attachEventListeners();
+        }
+
+        function renderSidebar() {
+            const filteredCategories = apiData.categories.filter(cat => {
+                if (!searchQuery) return true;
+                const query = searchQuery.toLowerCase();
+                
+                // Search in category name
+                if (cat.name.toLowerCase().includes(query)) return true;
+                
+                // Search in functions
+                if (cat.functions) {
+                    return cat.functions.some(fn => 
+                        fn.name.toLowerCase().includes(query) ||
+                        fn.description.toLowerCase().includes(query)
+                    );
+                }
+                
+                return false;
+            });
+
+            return `
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <h1>${apiData.title}</h1>
+                        <input 
+                            type="text" 
+                            class="search-box" 
+                            placeholder="Search API..." 
+                            value="${searchQuery}"
+                            id="searchInput"
+                        >
+                    </div>
+                    <div class="category-list">
+                        ${filteredCategories.map(cat => `
+                            <div 
+                                class="category-item ${currentCategory === cat.id ? 'active' : ''}" 
+                                data-category="${cat.id}"
+                            >
+                                <div class="category-icon"></div>
+                                <span class="category-name">${cat.name}</span>
+                                <span class="category-count">${cat.functions?.length || 0}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMainContent() {
+            const category = apiData.categories.find(c => c.id === currentCategory);
+            if (!category) return '<div class="main-content">Category not found</div>';
+
+            const filteredFunctions = searchQuery ? 
+                category.functions?.filter(fn => 
+                    fn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    fn.description.toLowerCase().includes(searchQuery.toLowerCase())
+                ) : category.functions;
+
+            return `
+                <div class="main-content">
+                    <div class="content-header">
+                        <h2>${category.name}</h2>
+                        <span class="badge">${category.type}</span>
+                        ${category.inherits ? `<span class="badge">Inherits: ${category.inherits.join(', ')}</span>` : ''}
+                        <p class="description">${category.description}</p>
+                    </div>
+
+                    ${category.properties ? renderProperties(category.properties) : ''}
+                    ${category.events ? renderEvents(category.events) : ''}
+                    ${filteredFunctions && filteredFunctions.length > 0 ? renderFunctions(filteredFunctions) : 
+                        searchQuery ? '<div class="no-results"><h3>No results found</h3><p>Try a different search term</p></div>' : ''}
+                </div>
+            `;
+        }
+
+        function renderProperties(properties) {
+            return `
+                <div class="properties-section">
+                    <h3 class="section-title">Properties</h3>
+                    ${properties.map(prop => `
+                        <div class="property-item">
+                            <span class="param-name">${prop.name}</span>
+                            <span class="param-type">${prop.type}</span>
+                            ${prop.readonly ? '<span class="property-readonly">READ-ONLY</span>' : ''}
+                            <span class="param-desc" style="margin-left: auto;">${prop.description}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderEvents(events) {
+            return `
+                <div style="margin-bottom: 40px;">
+                    <h3 class="section-title">Available Events</h3>
+                    <div class="events-grid">
+                        ${events.map(event => `
+                            <div class="event-card">
+                                <div class="event-name">${event.name}</div>
+                                <div class="event-params">(${event.params.map(p => p.name).join(', ')})</div>
+                                <div class="event-desc">${event.description}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFunctions(functions) {
+            return functions.map(fn => `
+                <div class="function-card">
+                    <div class="function-header">
+                        <div class="function-name">${fn.name}</div>
+                        <code class="function-syntax">${fn.syntax}</code>
+                    </div>
+                    <div class="function-body">
+                        <div class="function-description">${fn.description}</div>
+                        
+                        ${fn.parameters && fn.parameters.length > 0 ? `
+                            <div class="params-section">
+                                <div class="section-title">Parameters</div>
+                                ${fn.parameters.map(param => `
+                                    <div class="param-item">
+                                        <span class="param-name">${param.name}</span>
+                                        <span class="param-type"> : ${param.type}</span>
+                                        <div class="param-desc">${param.description}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+
+                        ${fn.returns && fn.returns.type !== 'void' ? `
+                            <div class="returns-section">
+                                <div class="section-title">Returns</div>
+                                <div class="param-item">
+                                    <span class="param-type">${fn.returns.type}</span>
+                                    ${fn.returns.description ? `<div class="param-desc">${fn.returns.description}</div>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${fn.example ? `
+                            <div class="example-section">
+                                <div class="section-title">Example</div>
+                                <div class="code-block"><code>${escapeHtml(fn.example)}</code></div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function attachEventListeners() {
+            // Category click
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    currentCategory = item.dataset.category;
+                    render();
+                });
+            });
+
+            // Search input
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value;
+                    render();
+                });
+                searchInput.focus();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K for search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput')?.focus();
+            }
+        });
+    </script>
+</body>
+</html>
+
