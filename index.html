@@ -5,574 +5,646 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MafiaMP Lua API Reference</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-dark: #1a1a1a;
-            --bg-secondary: #2d2d2d;
-            --bg-hover: #3a3a3a;
-            --text-primary: #e0e0e0;
-            --text-secondary: #a0a0a0;
-            --accent: #4a9eff;
-            --accent-hover: #6bb3ff;
-            --border: #404040;
-            --code-bg: #252525;
-            --success: #4caf50;
-            --warning: #ff9800;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
         }
-
-        .container {
+        
+        /* Header */
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        .filters {
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
         }
-
-        /* Sidebar */
-        .sidebar {
-            width: 280px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            overflow-y: auto;
-            flex-shrink: 0;
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            background: var(--bg-secondary);
-            z-index: 10;
-        }
-
-        .sidebar-header h1 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: var(--accent);
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 10px;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
+        .filter-label {
             font-size: 14px;
-            transition: border-color 0.2s;
+            font-weight: 600;
+            opacity: 0.8;
         }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .category-list {
-            padding: 10px 0;
-        }
-
-        .category-item {
-            padding: 12px 20px;
+        .filter-btn {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            color: white;
             cursor: pointer;
             transition: all 0.2s;
-            border-left: 3px solid transparent;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .category-item:hover {
-            background: var(--bg-hover);
-        }
-
-        .category-item.active {
-            background: var(--bg-hover);
-            border-left-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .category-icon {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-        }
-
-        .category-name {
             font-size: 14px;
-            font-weight: 500;
         }
-
-        .category-count {
-            margin-left: auto;
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .filter-btn.active {
+            background: #3498db;
+            border-color: #3498db;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            color: white;
+            font-size: 14px;
+        }
+        .search-box::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        .search-box:focus {
+            outline: none;
+            background: rgba(255,255,255,0.15);
+            border-color: #3498db;
+        }
+        
+        /* Main Layout */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 110px);
+        }
+        
+        /* Sidebar (Left) */
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+        }
+        .sidebar-header {
+            padding: 20px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .sidebar-header h3 {
             font-size: 12px;
-            color: var(--text-secondary);
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
         }
-
-        /* Main Content */
+        .function-count {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .native-list {
+            padding: 0;
+        }
+        .native-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .native-item:hover {
+            background: #f8f9fa;
+        }
+        .native-item.active {
+            background: #e8f4f8;
+            border-left-color: #3498db;
+        }
+        .native-name {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+        .side-badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+        }
+        .side-badge.client { background: #9b59b6; }
+        .side-badge.server { background: #e74c3c; }
+        .side-badge.shared { background: #27ae60; }
+        
+        /* Main Content (Right) */
         .main-content {
             flex: 1;
             overflow-y: auto;
+            background: #fafafa;
+        }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #95a5a6;
             padding: 40px;
+            text-align: center;
         }
-
-        .content-header {
-            margin-bottom: 40px;
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
         }
-
-        .content-header h2 {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .content-header .description {
-            color: var(--text-secondary);
+        .empty-state p {
             font-size: 16px;
         }
-
-        .content-header .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: var(--accent);
-            color: white;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-right: 10px;
-            margin-top: 10px;
+        .content-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
         }
-
-        /* Function Cards */
-        .function-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 20px;
-            overflow: hidden;
-            transition: border-color 0.2s;
-        }
-
-        .function-card:hover {
-            border-color: var(--accent);
-        }
-
-        .function-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .function-name {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--accent);
-            font-family: 'Courier New', monospace;
-            margin-bottom: 8px;
-        }
-
-        .function-syntax {
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: var(--text-secondary);
-            background: var(--code-bg);
-            padding: 8px 12px;
-            border-radius: 4px;
-            display: inline-block;
-        }
-
-        .function-body {
-            padding: 20px;
-        }
-
-        .function-description {
-            margin-bottom: 20px;
-            font-size: 15px;
-        }
-
-        .params-section, .returns-section, .example-section {
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .param-item {
-            background: var(--code-bg);
-            padding: 10px 15px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-        }
-
-        .param-name {
-            font-family: 'Courier New', monospace;
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .param-type {
-            color: var(--success);
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-        }
-
-        .param-desc {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-top: 4px;
-        }
-
-        .code-block {
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            overflow-x: auto;
-            line-height: 1.5;
-        }
-
-        .code-block code {
-            color: var(--text-primary);
-        }
-
-        /* Events Section */
-        .events-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .event-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 15px;
-        }
-
-        .event-name {
-            font-family: 'Courier New', monospace;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .event-params {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-family: 'Courier New', monospace;
-            margin-bottom: 8px;
-        }
-
-        .event-desc {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        /* Properties */
-        .properties-section {
+        .content-header {
             margin-bottom: 30px;
         }
-
-        .property-item {
-            background: var(--code-bg);
-            padding: 10px 15px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .content-title {
+            font-size: 32px;
+            font-family: 'Courier New', monospace;
+            color: #2c3e50;
+            margin-bottom: 10px;
         }
-
-        .property-readonly {
-            background: var(--warning);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
+        .content-meta {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .content-category {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .syntax-box {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section {
+            background: white;
+            border-radius: 6px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        .section-content {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #555;
+        }
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .params-table th {
+            text-align: left;
+            padding: 10px;
+            background: #ecf0f1;
+            border-bottom: 2px solid #bdc3c7;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .params-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 14px;
+        }
+        .params-table .param-name {
+            font-family: 'Courier New', monospace;
+            color: #e74c3c;
             font-weight: 600;
         }
-
-        /* Loading */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-size: 18px;
-            color: var(--text-secondary);
+        .params-table .param-type {
+            font-family: 'Courier New', monospace;
+            color: #27ae60;
+            font-size: 13px;
         }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+        .returns-box {
+            background: #e8f5e9;
+            border-left: 4px solid #27ae60;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #1b5e20;
+            margin-top: 10px;
         }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-dark);
+        .example-code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+            margin-top: 10px;
         }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--bg-hover);
-        }
-
         .no-results {
+            padding: 40px 20px;
             text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
+            color: #95a5a6;
         }
-
-        .no-results h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #bdc3c7; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #95a5a6; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            .header h1 {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .filter-group {
+                flex-wrap: wrap;
+            }
+            .search-box {
+                width: 100%;
+                min-width: auto;
+            }
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+            .content-wrapper {
+                padding: 20px;
+            }
+            .content-title {
+                font-size: 24px;
+            }
+            .syntax-box {
+                font-size: 13px;
+                padding: 15px;
+                overflow-x: auto;
+            }
+            .section {
+                padding: 15px;
+            }
+            .params-table {
+                font-size: 12px;
+            }
+            .params-table th,
+            .params-table td {
+                padding: 8px;
+            }
+            .example-code {
+                font-size: 12px;
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px 15px;
+            }
+            .header h1 {
+                font-size: 18px;
+            }
+            .filter-btn {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+            .function-count {
+                font-size: 24px;
+            }
+            .native-name {
+                font-size: 12px;
+            }
+            .content-title {
+                font-size: 20px;
+            }
+            .syntax-box {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="loading" class="loading">Loading API Reference...</div>
-    <div id="app" class="container" style="display: none;"></div>
+    <div class="header">
+        <h1>MafiaMP Lua API Reference</h1>
+        <div class="filters">
+            <div class="filter-group">
+                <span class="filter-label">API Set:</span>
+                <button class="filter-btn active" data-filter="all">all</button>
+                <button class="filter-btn" data-filter="server">server</button>
+                <button class="filter-btn" data-filter="client">client</button>
+                <button class="filter-btn" data-filter="shared">shared</button>
+            </div>
+            <input type="text" class="search-box" id="searchBox" placeholder="Search functions...">
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- LEFT: Liste des natives -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Functions</h3>
+                <div class="function-count" id="functionCount">0</div>
+            </div>
+            <div class="native-list" id="nativeList"></div>
+        </div>
+        
+        <!-- RIGHT: Détails de la native sélectionnée -->
+        <div class="main-content">
+            <div class="empty-state" id="emptyState">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p>Please select a function from the list.</p>
+            </div>
+            <div class="content-wrapper" id="contentWrapper" style="display: none;"></div>
+        </div>
+    </div>
 
     <script>
-        let apiData = null;
-        let currentCategory = null;
-        let searchQuery = '';
+        const API_DATA = {
+            funcs: [
+                // Event System
+                {name:"Event.on",syntax:"Event.on(eventName, callback)",side:"shared",category:"Event",desc:"Registers a callback for a local event (same-side only)",params:[{name:"eventName",type:"string",desc:"Name of event"},{name:"callback",type:"function",desc:"Function to execute"}],example:"Event.on('onPlayerConnected', function(player)\n  Chat.sendToAll(player.name .. ' joined!')\nend)"},
+                {name:"Event.emit",syntax:"Event.emit(eventName, ...)",side:"shared",category:"Event",desc:"Triggers a custom local event",params:[{name:"eventName",type:"string",desc:"Event name"},{name:"...",type:"any",desc:"Arguments"}],example:"Event.emit('myEvent', 'Hello', 123)"},
+                
+                // Server RPC
+                {name:"Server.emit",syntax:"Server.emit(eventName, data)",side:"server",category:"Network",desc:"Sends network event from server to all clients",params:[{name:"eventName",type:"string",desc:"Event name"},{name:"data",type:"table",desc:"Data to send"}],example:"-- Server side\nServer.emit('showMessage', {title='Hello', msg='Welcome!'})"},
+                {name:"Server.on",syntax:"Server.on(eventName, callback)",side:"server",category:"Network",desc:"Listens to network events from clients",params:[{name:"eventName",type:"string",desc:"Event name"},{name:"callback",type:"function",desc:"Handler function"}],example:"-- Server side\nServer.on('requestData', function(data)\n  Console.log('Client requested:', data.id)\nend)"},
+                
+                // Client RPC
+                {name:"Client.emit",syntax:"Client.emit(eventName, data)",side:"client",category:"Network",desc:"Sends network event from client to server",params:[{name:"eventName",type:"string",desc:"Event name"},{name:"data",type:"table",desc:"Data to send"}],example:"-- Client side\nClient.emit('requestData', {id=123})"},
+                {name:"Client.on",syntax:"Client.on(eventName, callback)",side:"client",category:"Network",desc:"Listens to network events from server",params:[{name:"eventName",type:"string",desc:"Event name"},{name:"callback",type:"function",desc:"Handler function"}],example:"-- Client side\nClient.on('showMessage', function(data)\n  UI.displayBannerMessage(data.title, data.msg)\nend)"},
+                
+                // World
+                {name:"World.createVehicle",syntax:"World.createVehicle(modelName)",side:"server",category:"World",desc:"Creates a new vehicle in the world",params:[{name:"modelName",type:"string",desc:"Model name (e.g. 'shubert_six')"}],returns:"Vehicle",example:"local car = World.createVehicle('shubert_six')\ncar:setPosition(Vector3.new(0, 0, 0))"},
+                {name:"World.getDayTimeHours",syntax:"World.getDayTimeHours()",side:"server",category:"World",desc:"Gets current time of day",returns:"number (0-24)",example:"local time = World.getDayTimeHours()\nConsole.log('Current time:', time)"},
+                {name:"World.setDayTimeHours",syntax:"World.setDayTimeHours(hours)",side:"server",category:"World",desc:"Sets the time of day",params:[{name:"hours",type:"number",desc:"Time in hours (0-24)"}],example:"World.setDayTimeHours(12.0) -- Set to noon"},
+                {name:"World.getWeatherSet",syntax:"World.getWeatherSet()",side:"server",category:"World",desc:"Gets current weather set name",returns:"string"},
+                {name:"World.setWeatherSet",syntax:"World.setWeatherSet(name)",side:"server",category:"World",desc:"Sets the weather",params:[{name:"name",type:"string",desc:"Weather set name"}],example:"World.setWeatherSet('DT_FreeRide_Day')"},
+                
+                // Chat
+                {name:"Chat.sendToAll",syntax:"Chat.sendToAll(message)",side:"server",category:"Chat",desc:"Sends message to all players",params:[{name:"message",type:"string",desc:"Message text"}],example:"Chat.sendToAll('Server restart in 5 minutes!')"},
+                {name:"Chat.sendToPlayer",syntax:"Chat.sendToPlayer(player, message)",side:"server",category:"Chat",desc:"Sends private message to player",params:[{name:"player",type:"Player",desc:"Target player"},{name:"message",type:"string",desc:"Message text"}],example:"Chat.sendToPlayer(player, 'Welcome!')"},
+                
+                // Player
+                {name:"player:sendChat",syntax:"player:sendChat(message)",side:"server",category:"Player",desc:"Sends private message to this player",params:[{name:"message",type:"string",desc:"Message"}]},
+                {name:"player:sendChatToAll",syntax:"player:sendChatToAll(message)",side:"server",category:"Player",desc:"Sends message from this player to all",params:[{name:"message",type:"string",desc:"Message"}]},
+                {name:"player:getHealth",syntax:"player:getHealth()",side:"server",category:"Player",desc:"Gets player health",returns:"number (0-100)"},
+                {name:"player:setHealth",syntax:"player:setHealth(health)",side:"server",category:"Player",desc:"Sets player health",params:[{name:"health",type:"number",desc:"Health (0-100)"}],example:"player:setHealth(100)"},
+                {name:"player:addWeapon",syntax:"player:addWeapon(weaponId, ammo)",side:"server",category:"Player",desc:"Gives weapon to player",params:[{name:"weaponId",type:"integer",desc:"Weapon ID"},{name:"ammo",type:"integer",desc:"Ammo amount"}]},
+                {name:"player:getVehicle",syntax:"player:getVehicle()",side:"server",category:"Player",desc:"Gets player's vehicle",returns:"Vehicle|nil"},
+                {name:"player:isAiming",syntax:"player:isAiming()",side:"server",category:"Player",desc:"Checks if player is aiming",returns:"boolean"},
+                {name:"player:isFiring",syntax:"player:isFiring()",side:"server",category:"Player",desc:"Checks if player is firing",returns:"boolean"},
+                
+                // Vehicle
+                {name:"vehicle:getEngineOn",syntax:"vehicle:getEngineOn()",side:"server",category:"Vehicle",desc:"Checks if engine is on",returns:"boolean"},
+                {name:"vehicle:setEngineOn",syntax:"vehicle:setEngineOn(on)",side:"server",category:"Vehicle",desc:"Sets engine state",params:[{name:"on",type:"boolean",desc:"Engine state"}]},
+                {name:"vehicle:getFuel",syntax:"vehicle:getFuel()",side:"server",category:"Vehicle",desc:"Gets fuel level",returns:"number"},
+                {name:"vehicle:setFuel",syntax:"vehicle:setFuel(fuel)",side:"server",category:"Vehicle",desc:"Sets fuel level",params:[{name:"fuel",type:"number",desc:"Fuel amount"}]},
+                {name:"vehicle:getLicensePlate",syntax:"vehicle:getLicensePlate()",side:"server",category:"Vehicle",desc:"Gets license plate text",returns:"string"},
+                {name:"vehicle:setLicensePlate",syntax:"vehicle:setLicensePlate(plate)",side:"server",category:"Vehicle",desc:"Sets license plate",params:[{name:"plate",type:"string",desc:"Plate text"}]},
+                {name:"vehicle:setColorPrimary",syntax:"vehicle:setColorPrimary(color)",side:"server",category:"Vehicle",desc:"Sets primary color",params:[{name:"color",type:"RGB",desc:"Color object"}]},
+                {name:"vehicle:setSirenOn",syntax:"vehicle:setSirenOn(on)",side:"server",category:"Vehicle",desc:"Sets siren state",params:[{name:"on",type:"boolean",desc:"Siren state"}]},
+                
+                // View
+                {name:"View.create",syntax:"View.create(url, width, height, x, y)",side:"client",category:"View",desc:"Creates a web view (Ultralight)",params:[{name:"url",type:"string",desc:"URL to load"},{name:"width",type:"number",desc:"Width (optional)"},{name:"height",type:"number",desc:"Height (optional)"},{name:"x",type:"number",desc:"X position (optional)"},{name:"y",type:"number",desc:"Y position (optional)"}],returns:"View",example:"local view = View.create('https://example.com', 800, 600)"},
+                {name:"view:setPosition",syntax:"view:setPosition(x, y)",side:"client",category:"View",desc:"Sets view position",params:[{name:"x",type:"number",desc:"X coord"},{name:"y",type:"number",desc:"Y coord"}]},
+                {name:"view:setZIndex",syntax:"view:setZIndex(z)",side:"client",category:"View",desc:"Sets z-index (layer order)",params:[{name:"z",type:"number",desc:"Z-index"}]},
+                {name:"view:setFocus",syntax:"view:setFocus(focused)",side:"client",category:"View",desc:"Sets focus state",params:[{name:"focused",type:"boolean",desc:"Focus state"}]},
+                {name:"view:setDisplay",syntax:"view:setDisplay(visible)",side:"client",category:"View",desc:"Sets visibility",params:[{name:"visible",type:"boolean",desc:"Visible"}]},
+                {name:"view:on",syntax:"view:on(eventName, callback)",side:"client",category:"View",desc:"Listens to events from JavaScript",params:[{name:"eventName",type:"string",desc:"Event name"},{name:"callback",type:"function",desc:"Handler"}],example:"view:on('btnClick', function(data)\n  Console.log(data)\nend)"},
+                {name:"view:emit",syntax:"view:emit(eventName, data)",side:"client",category:"View",desc:"Sends event to JavaScript",params:[{name:"eventName",type:"string",desc:"Event name"},{name:"data",type:"table",desc:"Data"}],example:"view:emit('updateScore', {score=100})"},
+                {name:"view:destroy",syntax:"view:destroy()",side:"client",category:"View",desc:"Destroys the view"},
+                
+                // UI
+                {name:"UI.displayBannerMessage",syntax:"UI.displayBannerMessage(title, message)",side:"client",category:"UI",desc:"Displays banner message",params:[{name:"title",type:"string",desc:"Title"},{name:"message",type:"string",desc:"Message"}]},
+                {name:"UI.displayGenericMessage",syntax:"UI.displayGenericMessage(title, message)",side:"client",category:"UI",desc:"Displays generic message",params:[{name:"title",type:"string",desc:"Title"},{name:"message",type:"string",desc:"Message"}]},
+                {name:"UI.displayTitleCard",syntax:"UI.displayTitleCard(title, message)",side:"client",category:"UI",desc:"Displays title card",params:[{name:"title",type:"string",desc:"Title"},{name:"message",type:"string",desc:"Message"}]},
+                {name:"UI.showNotification",syntax:"UI.showNotification(title, message, color)",side:"client",category:"UI",desc:"Shows notification",params:[{name:"title",type:"string",desc:"Title"},{name:"message",type:"string",desc:"Message"},{name:"color",type:"integer",desc:"Color ID"}]},
+                {name:"UI.faderFadeIn",syntax:"UI.faderFadeIn(duration, autoFadeOut)",side:"client",category:"UI",desc:"Fades screen in",params:[{name:"duration",type:"number",desc:"Duration"},{name:"autoFadeOut",type:"boolean",desc:"Auto fade out"}]},
+                
+                // Input
+                {name:"Input.getMousePosition",syntax:"Input.getMousePosition()",side:"client",category:"Input",desc:"Gets mouse position",returns:"Vector2"},
+                {name:"Input.setMousePosition",syntax:"Input.setMousePosition(x, y)",side:"client",category:"Input",desc:"Sets mouse position",params:[{name:"x",type:"integer",desc:"X"},{name:"y",type:"integer",desc:"Y"}]},
+                {name:"Input.setMouseVisible",syntax:"Input.setMouseVisible(visible)",side:"client",category:"Input",desc:"Sets mouse visibility",params:[{name:"visible",type:"boolean",desc:"Visible"}]},
+                {name:"Input.getKeyDown",syntax:"Input.getKeyDown(key)",side:"client",category:"Input",desc:"Checks if key is down",params:[{name:"key",type:"integer",desc:"Key code"}],returns:"boolean"},
+                {name:"Input.getKeyPressed",syntax:"Input.getKeyPressed(key)",side:"client",category:"Input",desc:"Checks if key was pressed",params:[{name:"key",type:"integer",desc:"Key code"}],returns:"boolean"},
+                
+                // Console
+                {name:"Console.log",syntax:"Console.log(...)",side:"shared",category:"Console",desc:"Logs to console",params:[{name:"...",type:"any",desc:"Values to log"}],example:"Console.log('Server started')"},
+                
+                // JSON
+                {name:"JSON.stringify",syntax:"JSON.stringify(table)",side:"shared",category:"JSON",desc:"Converts table to JSON string",params:[{name:"table",type:"table",desc:"Lua table"}],returns:"string"},
+                {name:"JSON.parse",syntax:"JSON.parse(jsonString)",side:"shared",category:"JSON",desc:"Parses JSON string to table",params:[{name:"jsonString",type:"string",desc:"JSON string"}],returns:"table"},
+                
+                // Hash
+                {name:"Hash.toMD5",syntax:"Hash.toMD5(input)",side:"shared",category:"Hash",desc:"Generates MD5 hash",params:[{name:"input",type:"string",desc:"Input string"}],returns:"string"},
+                {name:"Hash.toSHA256",syntax:"Hash.toSHA256(input)",side:"shared",category:"Hash",desc:"Generates SHA256 hash",params:[{name:"input",type:"string",desc:"Input string"}],returns:"string"},
+                {name:"Hash.toCRC32",syntax:"Hash.toCRC32(input)",side:"shared",category:"Hash",desc:"Generates CRC32 hash",params:[{name:"input",type:"string",desc:"Input string"}],returns:"string"},
+                
+                // Vector3
+                {name:"Vector3.new",syntax:"Vector3.new(x, y, z)",side:"shared",category:"Vector3",desc:"Creates new 3D vector",params:[{name:"x",type:"number",desc:"X"},{name:"y",type:"number",desc:"Y"},{name:"z",type:"number",desc:"Z"}],returns:"Vector3"},
+                {name:"vec:add",syntax:"vec:add(x, y, z)",side:"shared",category:"Vector3",desc:"Adds to vector",params:[{name:"x",type:"number",desc:"X"},{name:"y",type:"number",desc:"Y"},{name:"z",type:"number",desc:"Z"}]},
+                
+                // RGB
+                {name:"RGB.new",syntax:"RGB.new(r, g, b)",side:"shared",category:"RGB",desc:"Creates new RGB color",params:[{name:"r",type:"integer",desc:"Red (0-255)"},{name:"g",type:"integer",desc:"Green (0-255)"},{name:"b",type:"integer",desc:"Blue (0-255)"}],returns:"RGB"}
+            ]
+        };
 
-        // Load JSON data
-        fetch('lua_api_data.json')
-            .then(res => res.json())
-            .then(data => {
-                apiData = data;
-                init();
-            })
-            .catch(err => {
-                document.getElementById('loading').textContent = 'Error loading API data: ' + err.message;
-            });
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let selectedFunction = null;
 
         function init() {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('app').style.display = 'flex';
-            
-            currentCategory = apiData.categories[0].id;
+            setupFilters();
+            setupSearch();
             render();
         }
 
-        function render() {
-            const app = document.getElementById('app');
-            app.innerHTML = `
-                ${renderSidebar()}
-                ${renderMainContent()}
-            `;
-            attachEventListeners();
-        }
-
-        function renderSidebar() {
-            const filteredCategories = apiData.categories.filter(cat => {
-                if (!searchQuery) return true;
-                const query = searchQuery.toLowerCase();
-                
-                // Search in category name
-                if (cat.name.toLowerCase().includes(query)) return true;
-                
-                // Search in functions
-                if (cat.functions) {
-                    return cat.functions.some(fn => 
-                        fn.name.toLowerCase().includes(query) ||
-                        fn.description.toLowerCase().includes(query)
-                    );
-                }
-                
-                return false;
+        function setupFilters() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    selectedFunction = null;
+                    render();
+                });
             });
-
-            return `
-                <div class="sidebar">
-                    <div class="sidebar-header">
-                        <h1>${apiData.title}</h1>
-                        <input 
-                            type="text" 
-                            class="search-box" 
-                            placeholder="Search API..." 
-                            value="${searchQuery}"
-                            id="searchInput"
-                        >
-                    </div>
-                    <div class="category-list">
-                        ${filteredCategories.map(cat => `
-                            <div 
-                                class="category-item ${currentCategory === cat.id ? 'active' : ''}" 
-                                data-category="${cat.id}"
-                            >
-                                <div class="category-icon"></div>
-                                <span class="category-name">${cat.name}</span>
-                                <span class="category-count">${cat.functions?.length || 0}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
         }
 
-        function renderMainContent() {
-            const category = apiData.categories.find(c => c.id === currentCategory);
-            if (!category) return '<div class="main-content">Category not found</div>';
-
-            const filteredFunctions = searchQuery ? 
-                category.functions?.filter(fn => 
-                    fn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    fn.description.toLowerCase().includes(searchQuery.toLowerCase())
-                ) : category.functions;
-
-            return `
-                <div class="main-content">
-                    <div class="content-header">
-                        <h2>${category.name}</h2>
-                        <span class="badge">${category.type}</span>
-                        ${category.inherits ? `<span class="badge">Inherits: ${category.inherits.join(', ')}</span>` : ''}
-                        <p class="description">${category.description}</p>
-                    </div>
-
-                    ${category.properties ? renderProperties(category.properties) : ''}
-                    ${category.events ? renderEvents(category.events) : ''}
-                    ${filteredFunctions && filteredFunctions.length > 0 ? renderFunctions(filteredFunctions) : 
-                        searchQuery ? '<div class="no-results"><h3>No results found</h3><p>Try a different search term</p></div>' : ''}
-                </div>
-            `;
+        function setupSearch() {
+            document.getElementById('searchBox').addEventListener('input', (e) => {
+                searchQuery = e.target.value.toLowerCase();
+                render();
+            });
         }
 
-        function renderProperties(properties) {
-            return `
-                <div class="properties-section">
-                    <h3 class="section-title">Properties</h3>
-                    ${properties.map(prop => `
-                        <div class="property-item">
-                            <span class="param-name">${prop.name}</span>
-                            <span class="param-type">${prop.type}</span>
-                            ${prop.readonly ? '<span class="property-readonly">READ-ONLY</span>' : ''}
-                            <span class="param-desc" style="margin-left: auto;">${prop.description}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+        function getFilteredFunctions() {
+            return API_DATA.funcs.filter(fn => {
+                if (currentFilter !== 'all' && fn.side !== currentFilter) return false;
+                if (searchQuery) {
+                    return fn.name.toLowerCase().includes(searchQuery) ||
+                           fn.desc.toLowerCase().includes(searchQuery) ||
+                           fn.category.toLowerCase().includes(searchQuery);
+                }
+                return true;
+            });
         }
 
-        function renderEvents(events) {
-            return `
-                <div style="margin-bottom: 40px;">
-                    <h3 class="section-title">Available Events</h3>
-                    <div class="events-grid">
-                        ${events.map(event => `
-                            <div class="event-card">
-                                <div class="event-name">${event.name}</div>
-                                <div class="event-params">(${event.params.map(p => p.name).join(', ')})</div>
-                                <div class="event-desc">${event.description}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+        function render() {
+            const filtered = getFilteredFunctions();
+            renderList(filtered);
+            renderDetail();
         }
 
-        function renderFunctions(functions) {
-            return functions.map(fn => `
-                <div class="function-card">
-                    <div class="function-header">
-                        <div class="function-name">${fn.name}</div>
-                        <code class="function-syntax">${fn.syntax}</code>
-                    </div>
-                    <div class="function-body">
-                        <div class="function-description">${fn.description}</div>
-                        
-                        ${fn.parameters && fn.parameters.length > 0 ? `
-                            <div class="params-section">
-                                <div class="section-title">Parameters</div>
-                                ${fn.parameters.map(param => `
-                                    <div class="param-item">
-                                        <span class="param-name">${param.name}</span>
-                                        <span class="param-type"> : ${param.type}</span>
-                                        <div class="param-desc">${param.description}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
-
-                        ${fn.returns && fn.returns.type !== 'void' ? `
-                            <div class="returns-section">
-                                <div class="section-title">Returns</div>
-                                <div class="param-item">
-                                    <span class="param-type">${fn.returns.type}</span>
-                                    ${fn.returns.description ? `<div class="param-desc">${fn.returns.description}</div>` : ''}
-                                </div>
-                            </div>
-                        ` : ''}
-
-                        ${fn.example ? `
-                            <div class="example-section">
-                                <div class="section-title">Example</div>
-                                <div class="code-block"><code>${escapeHtml(fn.example)}</code></div>
-                            </div>
-                        ` : ''}
-                    </div>
+        function renderList(funcs) {
+            document.getElementById('functionCount').textContent = funcs.length;
+            
+            if (funcs.length === 0) {
+                document.getElementById('nativeList').innerHTML = '<div class="no-results">No functions found</div>';
+                return;
+            }
+            
+            document.getElementById('nativeList').innerHTML = funcs.map(fn => `
+                <div class="native-item ${selectedFunction === fn.name ? 'active' : ''}" data-name="${fn.name}">
+                    <span class="native-name">${fn.name}</span>
+                    <span class="side-badge ${fn.side}">${fn.side[0].toUpperCase()}</span>
                 </div>
             `).join('');
-        }
-
-        function attachEventListeners() {
-            // Category click
-            document.querySelectorAll('.category-item').forEach(item => {
+            
+            document.querySelectorAll('.native-item').forEach(item => {
                 item.addEventListener('click', () => {
-                    currentCategory = item.dataset.category;
+                    selectedFunction = item.dataset.name;
                     render();
                 });
             });
-
-            // Search input
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    searchQuery = e.target.value;
-                    render();
-                });
-                searchInput.focus();
-            }
         }
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        function renderDetail() {
+            const empty = document.getElementById('emptyState');
+            const content = document.getElementById('contentWrapper');
+            
+            if (!selectedFunction) {
+                empty.style.display = 'flex';
+                content.style.display = 'none';
+                return;
+            }
+            
+            const fn = API_DATA.funcs.find(f => f.name === selectedFunction);
+            if (!fn) {
+                empty.style.display = 'flex';
+                content.style.display = 'none';
+                return;
+            }
+            
+            empty.style.display = 'none';
+            content.style.display = 'block';
+            
+            content.innerHTML = `
+                <div class="content-header">
+                    <div class="content-title">${fn.name}</div>
+                    <div class="content-meta">
+                        <span class="side-badge ${fn.side}">${fn.side.toUpperCase()}</span>
+                        <span class="content-category">${fn.category}</span>
+                    </div>
+                </div>
+                
+                <div class="syntax-box">${fn.syntax}</div>
+                
+                <div class="section">
+                    <div class="section-title">Description</div>
+                    <div class="section-content">${fn.desc}</div>
+                </div>
+                
+                ${fn.params && fn.params.length > 0 ? `
+                    <div class="section">
+                        <div class="section-title">Parameters</div>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${fn.params.map(p => `
+                                    <tr>
+                                        <td class="param-name">${p.name}</td>
+                                        <td class="param-type">${p.type}</td>
+                                        <td>${p.desc || ''}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                ` : ''}
+                
+                ${fn.returns ? `
+                    <div class="section">
+                        <div class="section-title">Returns</div>
+                        <div class="returns-box">${fn.returns}</div>
+                    </div>
+                ` : ''}
+                
+                ${fn.example ? `
+                    <div class="section">
+                        <div class="section-title">Example</div>
+                        <div class="example-code">${fn.example}</div>
+                    </div>
+                ` : ''}
+            `;
         }
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + K for search
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                document.getElementById('searchInput')?.focus();
-            }
-        });
+        init();
     </script>
 </body>
 </html>
-
